@@ -3,156 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HELENA v13.6 - SUPREME JDP</title>
-    
-    <!-- PWA CONFIG -->
-    <meta name="theme-color" content="#00f3ff">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+    <title>HELENA v15.0 - JDP OS</title>
     <style>
-        :root { --neon: #00f3ff; --bg: #050505; --panel: #111; }
-        body { 
-            margin: 0; background: var(--bg); color: var(--neon); 
-            font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh; 
-        }
-
-        /* BOLINHA FLUTUANTE SUPREME */
-        #robot-core {
-            position: fixed; width: 65px; height: 65px;
-            background: radial-gradient(circle, var(--neon), #00444d);
-            border-radius: 50%; box-shadow: 0 0 20px var(--neon);
-            z-index: 10000; bottom: 20px; right: 20px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border: 2px solid #fff;
-            touch-action: none; transition: transform 0.2s;
-        }
-
-        /* PAINEL DE COMANDO */
-        #main-panel {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 9999;
-            display: none; flex-direction: column; padding: 20px; box-sizing: border-box;
-        }
-
-        #main-panel.active { display: flex; animation: fadeIn 0.3s; }
-
-        .terminal {
-            flex: 1; background: #000; border: 1px solid #333;
-            padding: 15px; overflow-y: auto; font-family: 'Courier New', monospace;
-            font-size: 13px; color: #00ff00; margin-top: 50px;
-        }
-
-        .input-group {
-            display: flex; gap: 10px; margin-top: 15px;
-        }
-
-        input {
-            flex: 1; background: #111; border: 1px solid var(--neon);
-            color: var(--neon); padding: 12px; outline: none;
-        }
-
-        .btn {
-            background: var(--neon); color: #000; border: none;
-            padding: 12px 20px; font-weight: bold; cursor: pointer;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        :root { --neon: #00f3ff; --bg: #050505; --danger: #ff003c; }
+        body { margin: 0; background: var(--bg); color: var(--neon); font-family: 'Orbitron', sans-serif; overflow: hidden; }
         
-        /* ESCONDER INPUT DE ARQUIVO REAL */
-        #file-engine { display: none; }
+        /* INTERFACE INDUSTRIAL */
+        #os-container { position: fixed; width: 100vw; height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; border: 4px solid #1a1a1a; }
+        
+        #header { display: flex; justify-content: space-between; border-bottom: 2px solid var(--neon); padding-bottom: 10px; margin-bottom: 15px; font-size: 12px; }
+
+        #display { flex: 1; background: rgba(0,0,0,0.8); border: 1px solid #222; border-radius: 5px; overflow-y: auto; padding: 15px; font-family: monospace; font-size: 14px; box-shadow: inset 0 0 20px #000; }
+
+        .line { margin-bottom: 8px; border-left: 3px solid var(--neon); padding-left: 10px; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* COMANDOS */
+        #input-area { margin-top: 20px; display: flex; gap: 10px; }
+        input { flex: 1; background: #111; border: 1px solid var(--neon); color: var(--neon); padding: 15px; border-radius: 5px; font-size: 16px; outline: none; box-shadow: 0 0 10px rgba(0,243,255,0.2); }
+        
+        .btn-core { background: var(--neon); color: #000; border: none; padding: 0 25px; font-weight: bold; border-radius: 5px; cursor: pointer; text-transform: uppercase; }
+
+        /* BOTÕES RÁPIDOS */
+        .quick-access { display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; padding-bottom: 10px; }
+        .chip { background: #1a1a1a; border: 1px solid #333; padding: 8px 15px; border-radius: 20px; font-size: 10px; white-space: nowrap; cursor: pointer; }
+        .chip:active { background: var(--neon); color: #000; }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div id="robot-core" onclick="togglePanel()">
-        <div style="width:15px; height:15px; background:#fff; border-radius:50%; animation: pulse 1s infinite;"></div>
+    <div id="os-container">
+        <div id="header">
+            <span>SISTEMA: HELENA v15.0</span>
+            <span>STATUS: AUTORIDADE MÁXIMA</span>
+            <span id="clock">00:00:00</span>
+        </div>
+
+        <div id="display">
+            <div class="line" style="color: white;">BEM-VINDO, SR. JOSÉ DIVINO PRADO DA LAPA.</div>
+            <div class="line">AGUARDANDO COMANDO DE VOZ OU TEXTO...</div>
+        </div>
+
+        <div class="quick-access">
+            <div class="chip" onclick="mapear()">[+] MAPEAR CELULAR</div>
+            <div class="chip" onclick="comandoRapido('Abra o WhatsApp')">WHATSAPP</div>
+            <div class="chip" onclick="comandoRapido('Abra o YouTube')">YOUTUBE</div>
+            <div class="chip" onclick="comandoRapido('Abra o Maps')">MAPS</div>
+            <div class="chip" onclick="limpar()">LIMPAR TERMINAL</div>
+        </div>
+
+        <div id="input-area">
+            <input type="text" id="cmd" placeholder="Diga: 'Abra o editor.html' ou 'Ligar para...'">
+            <button class="btn-core" onclick="processar()">EXECUTAR</button>
+        </div>
     </div>
 
-    <div id="main-panel">
-        <div style="display:flex; justify-content: space-between; align-items: center;">
-            <h2 style="margin:0; font-size: 18px;">HELENA v13.6 - KERNEL JDP</h2>
-            <button class="btn" style="background:red; color:white;" onclick="togglePanel()">FECHAR</button>
-        </div>
-
-        <div class="terminal" id="console">
-            > SISTEMA ONLINE NO GITHUB.<br>
-            > STATUS: AGUARDANDO SINCRONIZAÇÃO INDUSTRIAL.<br>
-            > SR. JOSÉ, CLIQUE NO BOTÃO ABAIXO PARA "ALIMENTAR" MEU BANCO DE DADOS.
-        </div>
-
-        <div class="input-group">
-            <button class="btn" onclick="triggerScan()">SINCRONIZAR PASTA</button>
-            <input type="text" id="cmdInput" placeholder="Diga: 'Abra o arquivo X'...">
-            <button class="btn" onclick="execCommand()">IR</button>
-        </div>
-    </div>
-
-    <!-- MECANISMO OCULTO DE CAPTURA -->
-    <input type="file" id="file-engine" webkitdirectory directory multiple onchange="indexFiles(this.files)">
+    <input type="file" id="file-engine" webkitdirectory directory multiple style="display:none">
 
     <script>
-        const consoleEl = document.getElementById('console');
-        const panel = document.getElementById('main-panel');
-        let fileDatabase = [];
+        const display = document.getElementById('display');
+        const cmdInput = document.getElementById('cmd');
+        const fileEngine = document.getElementById('file-engine');
+        let database = [];
 
-        function log(msg, color = "#00ff00") {
+        // RELÓGIO INDUSTRIAL
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        }, 1000);
+
+        function log(msg, color = var(--neon)) {
             const div = document.createElement('div');
+            div.className = 'line';
             div.style.color = color;
-            div.innerHTML = `> [${new Date().toLocaleTimeString()}] ${msg}`;
-            consoleEl.appendChild(div);
-            consoleEl.scrollTop = consoleEl.scrollHeight;
+            div.innerHTML = `> ${msg}`;
+            display.appendChild(div);
+            display.scrollTop = display.scrollHeight;
         }
 
-        function togglePanel() {
-            panel.classList.toggle('active');
-            if(panel.classList.contains('active')) log("Interface Neural Ativada.");
-        }
-
-        function triggerScan() {
+        function mapear() {
             log("SOLICITANDO ACESSO AO ARMAZENAMENTO...", "yellow");
-            document.getElementById('file-engine').click();
+            fileEngine.click();
         }
 
-        // ESTA É A FUNÇÃO QUE "LÊ" O CELULAR
-        function indexFiles(files) {
-            fileDatabase = Array.from(files);
-            log(`SINCRONIZAÇÃO CONCLUÍDA!`, var(--neon));
-            log(`${fileDatabase.length} ARQUIVOS MAPEADOS NA MEMÓRIA.`, "#fff");
-            log(`AGORA EU SEI TUDO O QUE TEM NESSA PASTA.`, var(--neon));
+        fileEngine.onchange = (e) => {
+            database = Array.from(e.target.files);
+            log(`VARREDURA COMPLETA: ${database.length} ARQUIVOS INDEXADOS.`, "#00ff00");
+            log("INTELIGÊNCIA PRONTA PARA ABRIR QUALQUER ARQUIVO.");
+        };
+
+        function comandoRapido(txt) {
+            cmdInput.value = txt;
+            processar();
         }
 
-        function execCommand() {
-            const cmd = document.getElementById('cmdInput').value.toLowerCase();
-            document.getElementById('cmdInput').value = '';
+        function processar() {
+            const raw = cmdInput.value.trim();
+            const cmd = raw.toLowerCase();
+            cmdInput.value = '';
 
-            if(cmd.includes("abra") || cmd.includes("buscar")) {
-                const target = cmd.replace("abra", "").replace("arquivo", "").trim();
-                log(`BUSCANDO POR: ${target}...`, "white");
+            if(!cmd) return;
+            log(`PROCESSANDO: "${raw}"`, "white");
 
-                const found = fileDatabase.find(f => f.name.toLowerCase().includes(target));
+            // 1. LÓGICA PARA ABRIR APPS DO SISTEMA
+            if(cmd.includes("whatsapp")) {
+                log("DISPARANDO PROTOCOLO WHATSAPP...");
+                window.location.href = "whatsapp://send";
+                return;
+            }
+            if(cmd.includes("youtube")) {
+                log("DISPARANDO PROTOCOLO YOUTUBE...");
+                window.location.href = "intent://www.youtube.com#Intent;package=com.google.android.youtube;scheme=https;end";
+                return;
+            }
+            if(cmd.includes("maps") || cmd.includes("mapa")) {
+                log("DISPARANDO PROTOCOLO GOOGLE MAPS...");
+                window.location.href = "https://www.google.com/maps";
+                return;
+            }
 
-                if(found) {
-                    log(`ARQUIVO LOCALIZADO: ${found.name}`, var(--neon));
-                    log(`ABRINDO...`);
-                    const url = URL.createObjectURL(found);
-                    window.open(url, '_blank');
+            // 2. LÓGICA PARA ABRIR ARQUIVOS DO CELULAR (MAPEADOS)
+            if(cmd.includes("abra") || cmd.includes("abrir") || cmd.includes("execute")) {
+                const alvo = cmd.replace(/abra|abrir|execute|o|arquivo/g, "").trim();
+                const arquivo = database.find(f => f.name.toLowerCase().includes(alvo));
+
+                if(arquivo) {
+                    log(`ARQUIVO ENCONTRADO: ${arquivo.name}`, "#00f3ff");
+                    abrirArquivo(arquivo);
                 } else {
-                    log(`ERRO: ARQUIVO "${target}" NÃO ENCONTRADO NO MAPEAMENTO.`, "red");
+                    log(`ERRO: O ARQUIVO "${alvo}" NÃO FOI LOCALIZADO. REALIZE O MAPEAMENTO.`, "red");
                 }
-            } else {
-                log(`COMANDO NÃO RECONHECIDO. TENTE "ABRA [NOME DO ARQUIVO]".`, "yellow");
             }
         }
 
-        // Lógica para arrastar a bolinha (Mobile)
-        const core = document.getElementById('robot-core');
-        core.addEventListener('touchmove', function(e) {
-            var touchLocation = e.targetTouches[0];
-            core.style.left = touchLocation.pageX - 32 + 'px';
-            core.style.top = touchLocation.pageY - 32 + 'px';
-        });
+        function abrirArquivo(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                if(file.name.endsWith('.html')) {
+                    const win = window.open();
+                    win.document.write(content);
+                } else {
+                    const url = URL.createObjectURL(file);
+                    window.open(url, '_blank');
+                }
+            };
+            
+            if(file.name.endsWith('.html') || file.name.endsWith('.txt')) {
+                reader.readAsText(file);
+            } else {
+                const url = URL.createObjectURL(file);
+                window.open(url, '_blank');
+            }
+        }
 
+        function limpar() { display.innerHTML = ''; log("TERMINAL REINICIADO."); }
+
+        // ENTER
+        cmdInput.addEventListener("keyup", (e) => { if(e.key === "Enter") processar(); });
     </script>
 </body>
 </html>
