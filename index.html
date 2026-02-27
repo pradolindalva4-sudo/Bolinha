@@ -3,188 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HELENA v13.5 - CORTEX REAL</title>
-    <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.js"></script> <!-- Inteligência de Busca -->
+    <title>HELENA v13.6 - SUPREME JDP</title>
+    
+    <!-- PWA CONFIG -->
+    <meta name="theme-color" content="#00f3ff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
-        :root {
-            --neon: #00f3ff;
-            --dark: #050505;
-            --industrial: #1a1a1a;
+        :root { --neon: #00f3ff; --bg: #050505; --panel: #111; }
+        body { 
+            margin: 0; background: var(--bg); color: var(--neon); 
+            font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh; 
         }
 
-        body {
-            margin: 0; background: var(--dark); color: var(--neon);
-            font-family: 'Orbitron', sans-serif; overflow: hidden; height: 100vh;
-        }
-
-        /* BOLINHA FLUTUANTE REAL */
-        #floating-core {
-            position: fixed;
-            width: 70px; height: 70px;
-            background: radial-gradient(circle, var(--neon), #000);
-            border-radius: 50%;
-            box-shadow: 0 0 25px var(--neon);
-            z-index: 9999;
-            cursor: move;
+        /* BOLINHA FLUTUANTE SUPREME */
+        #robot-core {
+            position: fixed; width: 65px; height: 65px;
+            background: radial-gradient(circle, var(--neon), #00444d);
+            border-radius: 50%; box-shadow: 0 0 20px var(--neon);
+            z-index: 10000; bottom: 20px; right: 20px;
             display: flex; align-items: center; justify-content: center;
-            touch-action: none; /* Permite arrastar no celular */
-            border: 2px solid #fff;
-        }
-
-        #floating-core::after {
-            content: "JDP"; font-size: 10px; color: white; font-weight: bold;
+            cursor: pointer; border: 2px solid #fff;
+            touch-action: none; transition: transform 0.2s;
         }
 
         /* PAINEL DE COMANDO */
-        #command-panel {
-            position: fixed;
-            bottom: -100%; left: 0; width: 100%; height: 70%;
-            background: rgba(10, 10, 10, 0.98);
-            border-top: 3px solid var(--neon);
-            transition: 0.5s cubic-bezier(0.1, 0.7, 0.1, 1);
-            z-index: 9998;
-            padding: 20px; box-sizing: border-box;
-            display: flex; flex-direction: column;
+        #main-panel {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 9999;
+            display: none; flex-direction: column; padding: 20px; box-sizing: border-box;
         }
 
-        #command-panel.active { bottom: 0; }
+        #main-panel.active { display: flex; animation: fadeIn 0.3s; }
 
         .terminal {
-            flex: 1; background: #000; border: 1px solid #222;
-            padding: 15px; overflow-y: auto; font-family: monospace;
-            font-size: 12px; color: #00ff00; margin-bottom: 15px;
+            flex: 1; background: #000; border: 1px solid #333;
+            padding: 15px; overflow-y: auto; font-family: 'Courier New', monospace;
+            font-size: 13px; color: #00ff00; margin-top: 50px;
         }
 
-        .input-box {
-            display: flex; gap: 10px; background: #111; padding: 10px; border-radius: 5px;
+        .input-group {
+            display: flex; gap: 10px; margin-top: 15px;
         }
 
         input {
-            flex: 1; background: transparent; border: none; color: var(--neon);
-            outline: none; font-size: 16px;
+            flex: 1; background: #111; border: 1px solid var(--neon);
+            color: var(--neon); padding: 12px; outline: none;
         }
 
-        .btn-action {
+        .btn {
             background: var(--neon); color: #000; border: none;
-            padding: 10px 15px; font-weight: bold; border-radius: 4px;
+            padding: 12px 20px; font-weight: bold; cursor: pointer;
         }
 
-        .file-card {
-            background: #1a1a1a; padding: 10px; margin: 5px 0;
-            border-left: 4px solid var(--neon); display: flex; justify-content: space-between;
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* ESCONDER INPUT DE ARQUIVO REAL */
+        #file-engine { display: none; }
     </style>
 </head>
 <body>
 
-    <!-- BOLINHA FLUTUANTE -->
-    <div id="floating-core"></div>
+    <div id="robot-core" onclick="togglePanel()">
+        <div style="width:15px; height:15px; background:#fff; border-radius:50%; animation: pulse 1s infinite;"></div>
+    </div>
 
-    <!-- PAINEL DE CONTROLE -->
-    <div id="command-panel">
-        <div style="display:flex; justify-content: space-between; margin-bottom: 10px;">
-            <span>SISTEMA HELENA v13.5</span>
-            <button onclick="initFileSystem()" style="background:red; color:white; border:none; padding:5px;">CONECTAR ARQUIVOS</button>
-        </div>
-        
-        <div class="terminal" id="log">
-            > AGUARDANDO SINCRONIZAÇÃO COM O DISPOSITIVO...<br>
-            > SR. JOSÉ, CLIQUE EM "CONECTAR ARQUIVOS" PARA ME DAR ACESSO.
+    <div id="main-panel">
+        <div style="display:flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin:0; font-size: 18px;">HELENA v13.6 - KERNEL JDP</h2>
+            <button class="btn" style="background:red; color:white;" onclick="togglePanel()">FECHAR</button>
         </div>
 
-        <div class="input-box">
-            <input type="text" id="cmdInput" placeholder="Ex: 'Abra o PDF da JDP' ou 'O que tem de novo?'">
-            <button class="btn-action" onclick="executarComando()">EXECUTAR</button>
+        <div class="terminal" id="console">
+            > SISTEMA ONLINE NO GITHUB.<br>
+            > STATUS: AGUARDANDO SINCRONIZAÇÃO INDUSTRIAL.<br>
+            > SR. JOSÉ, CLIQUE NO BOTÃO ABAIXO PARA "ALIMENTAR" MEU BANCO DE DADOS.
+        </div>
+
+        <div class="input-group">
+            <button class="btn" onclick="triggerScan()">SINCRONIZAR PASTA</button>
+            <input type="text" id="cmdInput" placeholder="Diga: 'Abra o arquivo X'...">
+            <button class="btn" onclick="execCommand()">IR</button>
         </div>
     </div>
 
-    <script>
-        let dbFiles = []; // Banco de dados de arquivos real
-        const panel = document.getElementById('command-panel');
-        const log = document.getElementById('log');
-        const core = document.getElementById('floating-core');
+    <!-- MECANISMO OCULTO DE CAPTURA -->
+    <input type="file" id="file-engine" webkitdirectory directory multiple onchange="indexFiles(this.files)">
 
-        // --- LÓGICA DE ARRASTAR A BOLINHA ---
-        let isDragging = false;
-        core.onpointerdown = (e) => { isDragging = false; core.setPointerCapture(e.pointerId); };
-        core.onpointermove = (e) => {
-            isDragging = true;
-            core.style.left = (e.clientX - 35) + 'px';
-            core.style.top = (e.clientY - 35) + 'px';
-        };
-        core.onpointerup = (e) => {
-            if (!isDragging) togglePanel(); // Se só clicou, abre o painel
-        };
+    <script>
+        const consoleEl = document.getElementById('console');
+        const panel = document.getElementById('main-panel');
+        let fileDatabase = [];
+
+        function log(msg, color = "#00ff00") {
+            const div = document.createElement('div');
+            div.style.color = color;
+            div.innerHTML = `> [${new Date().toLocaleTimeString()}] ${msg}`;
+            consoleEl.appendChild(div);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
 
         function togglePanel() {
             panel.classList.toggle('active');
+            if(panel.classList.contains('active')) log("Interface Neural Ativada.");
         }
 
-        function printLog(msg, color = "#00ff00") {
-            log.innerHTML += `<div style="color:${color}">> ${msg}</div>`;
-            log.scrollTop = log.scrollHeight;
+        function triggerScan() {
+            log("SOLICITANDO ACESSO AO ARMAZENAMENTO...", "yellow");
+            document.getElementById('file-engine').click();
         }
 
-        // --- ACESSO REAL AO SISTEMA DE ARQUIVOS ---
-        async function initFileSystem() {
-            try {
-                printLog("SOLICITANDO PERMISSÃO DE ACESSO À RAIZ...", "yellow");
-                // Abre o seletor de pasta do Android/PC
-                const directoryHandle = await window.showDirectoryPicker();
-                dbFiles = [];
-                await scanDirectory(directoryHandle);
-                printLog(`SUCESSO! ${dbFiles.length} ARQUIVOS INDEXADOS NO CORTEX.`, var(--neon));
-            } catch (err) {
-                printLog("ERRO: O Sr. precisa selecionar uma pasta para eu trabalhar.", "red");
-            }
+        // ESTA É A FUNÇÃO QUE "LÊ" O CELULAR
+        function indexFiles(files) {
+            fileDatabase = Array.from(files);
+            log(`SINCRONIZAÇÃO CONCLUÍDA!`, var(--neon));
+            log(`${fileDatabase.length} ARQUIVOS MAPEADOS NA MEMÓRIA.`, "#fff");
+            log(`AGORA EU SEI TUDO O QUE TEM NESSA PASTA.`, var(--neon));
         }
 
-        async function scanDirectory(handle) {
-            for await (const entry of handle.values()) {
-                if (entry.kind === 'file') {
-                    dbFiles.push({ name: entry.name, handle: entry });
-                } else if (entry.kind === 'directory') {
-                    await scanDirectory(entry);
-                }
-            }
-        }
-
-        // --- INTELIGÊNCIA DE COMANDO ---
-        function executarComando() {
-            const input = document.getElementById('cmdInput').value.toLowerCase();
+        function execCommand() {
+            const cmd = document.getElementById('cmdInput').value.toLowerCase();
             document.getElementById('cmdInput').value = '';
-            
-            if (dbFiles.length === 0) {
-                printLog("ERRO: Primeiro conecte os arquivos no botão vermelho.", "red");
-                return;
-            }
 
-            printLog(`PROCESSANDO: "${input}"...`, "white");
+            if(cmd.includes("abra") || cmd.includes("buscar")) {
+                const target = cmd.replace("abra", "").replace("arquivo", "").trim();
+                log(`BUSCANDO POR: ${target}...`, "white");
 
-            // Lógica de busca "Abra o arquivo X"
-            if (input.includes("abra") || input.includes("buscar")) {
-                const searchName = input.replace("abra", "").replace("arquivo", "").trim();
-                
-                // Usando Fuse.js para busca inteligente (mesmo que digite errado)
-                const fuse = new Fuse(dbFiles, { keys: ['name'], threshold: 0.4 });
-                const result = fuse.search(searchName);
+                const found = fileDatabase.find(f => f.name.toLowerCase().includes(target));
 
-                if (result.length > 0) {
-                    const file = result[0].item;
-                    printLog(`ARQUIVO ENCONTRADO: ${file.name}`, "var(--neon)");
-                    abrirArquivo(file);
+                if(found) {
+                    log(`ARQUIVO LOCALIZADO: ${found.name}`, var(--neon));
+                    log(`ABRINDO...`);
+                    const url = URL.createObjectURL(found);
+                    window.open(url, '_blank');
                 } else {
-                    printLog("ARQUIVO NÃO LOCALIZADO NO BANCO JDP.", "red");
+                    log(`ERRO: ARQUIVO "${target}" NÃO ENCONTRADO NO MAPEAMENTO.`, "red");
                 }
+            } else {
+                log(`COMANDO NÃO RECONHECIDO. TENTE "ABRA [NOME DO ARQUIVO]".`, "yellow");
             }
         }
 
-        async function abrirArquivo(file) {
-            const fileData = await file.handle.getFile();
-            const url = URL.createObjectURL(fileData);
-            printLog("EXECUTANDO ABERTURA DE BINÁRIO...");
-            window.open(url, '_blank');
-        }
+        // Lógica para arrastar a bolinha (Mobile)
+        const core = document.getElementById('robot-core');
+        core.addEventListener('touchmove', function(e) {
+            var touchLocation = e.targetTouches[0];
+            core.style.left = touchLocation.pageX - 32 + 'px';
+            core.style.top = touchLocation.pageY - 32 + 'px';
+        });
 
     </script>
 </body>
