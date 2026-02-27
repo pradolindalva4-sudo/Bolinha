@@ -3,164 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HELENA v15.0 - JDP OS</title>
+    <meta name="theme-color" content="#000">
+    <title>HELENA v50.0 - VOICE CONTROL</title>
+    
+    <link rel="manifest" href="data:application/manifest+json,{'name':'HELENA VOICE','short_name':'HELENA','start_url':'.','display':'standalone','background_color':'#000','theme_color':'#00f3ff'}">
+
     <style>
-        :root { --neon: #00f3ff; --bg: #050505; --danger: #ff003c; }
-        body { margin: 0; background: var(--bg); color: var(--neon); font-family: 'Orbitron', sans-serif; overflow: hidden; }
+        :root { --neon: #00f3ff; --gold: #ffcc00; --red: #ff0044; --bg: #000; }
+        body { margin: 0; background: var(--bg); color: var(--neon); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         
-        /* INTERFACE INDUSTRIAL */
-        #os-container { position: fixed; width: 100vw; height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; border: 4px solid #1a1a1a; }
-        
-        #header { display: flex; justify-content: space-between; border-bottom: 2px solid var(--neon); padding-bottom: 10px; margin-bottom: 15px; font-size: 12px; }
+        /* PULSO DE VOZ (INDICADOR DE ESCUTA) */
+        #voice-pulse {
+            width: 80px; height: 80px; background: rgba(0, 243, 255, 0.1);
+            border: 2px solid var(--neon); border-radius: 50%;
+            margin: 20px auto; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px var(--neon); transition: 0.3s;
+        }
+        .listening { animation: pulse-red 1.5s infinite; border-color: var(--red) !important; box-shadow: 0 0 30px var(--red) !important; }
+        @keyframes pulse-red { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
 
-        #display { flex: 1; background: rgba(0,0,0,0.8); border: 1px solid #222; border-radius: 5px; overflow-y: auto; padding: 15px; font-family: monospace; font-size: 14px; box-shadow: inset 0 0 20px #000; }
+        /* CONSOLE INDUSTRIAL */
+        #console { 
+            height: 40vh; background: #050505; margin: 10px; border: 1px solid #222; 
+            padding: 15px; font-family: 'Courier New', monospace; font-size: 14px; overflow-y: auto;
+            border-radius: 10px; box-shadow: inset 0 0 10px #000;
+        }
+        .cmd { color: var(--gold); font-weight: bold; }
+        .res { color: #fff; margin-bottom: 10px; border-bottom: 1px solid #111; padding-bottom: 5px; }
 
-        .line { margin-bottom: 8px; border-left: 3px solid var(--neon); padding-left: 10px; animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        /* BOTÕES DE CONTROLE */
+        #controls { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-supreme { 
+            background: #111; border: 2px solid var(--neon); color: var(--neon); 
+            padding: 20px; border-radius: 12px; font-weight: bold; text-transform: uppercase;
+        }
+        .btn-active { background: var(--neon); color: #000; }
 
-        /* COMANDOS */
-        #input-area { margin-top: 20px; display: flex; gap: 10px; }
-        input { flex: 1; background: #111; border: 1px solid var(--neon); color: var(--neon); padding: 15px; border-radius: 5px; font-size: 16px; outline: none; box-shadow: 0 0 10px rgba(0,243,255,0.2); }
-        
-        .btn-core { background: var(--neon); color: #000; border: none; padding: 0 25px; font-weight: bold; border-radius: 5px; cursor: pointer; text-transform: uppercase; }
-
-        /* BOTÕES RÁPIDOS */
-        .quick-access { display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; padding-bottom: 10px; }
-        .chip { background: #1a1a1a; border: 1px solid #333; padding: 8px 15px; border-radius: 20px; font-size: 10px; white-space: nowrap; cursor: pointer; }
-        .chip:active { background: var(--neon); color: #000; }
+        #status-bar { background: var(--neon); color: #000; padding: 5px 15px; font-size: 10px; font-weight: bold; text-align: center; }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div id="os-container">
-        <div id="header">
-            <span>SISTEMA: HELENA v15.0</span>
-            <span>STATUS: AUTORIDADE MÁXIMA</span>
-            <span id="clock">00:00:00</span>
-        </div>
+<div id="status-bar">SISTEMA JDP INDUSTRIAL - KERNEL v50.0 ATIVO</div>
 
-        <div id="display">
-            <div class="line" style="color: white;">BEM-VINDO, SR. JOSÉ DIVINO PRADO DA LAPA.</div>
-            <div class="line">AGUARDANDO COMANDO DE VOZ OU TEXTO...</div>
-        </div>
+<div id="voice-pulse" id="mic-icon">
+    <span id="mic-text" style="font-size: 10px;">OFF</span>
+</div>
 
-        <div class="quick-access">
-            <div class="chip" onclick="mapear()">[+] MAPEAR CELULAR</div>
-            <div class="chip" onclick="comandoRapido('Abra o WhatsApp')">WHATSAPP</div>
-            <div class="chip" onclick="comandoRapido('Abra o YouTube')">YOUTUBE</div>
-            <div class="chip" onclick="comandoRapido('Abra o Maps')">MAPS</div>
-            <div class="chip" onclick="limpar()">LIMPAR TERMINAL</div>
-        </div>
+<div id="console" id="console-div">
+    <div class="res">> AGUARDANDO ATIVAÇÃO DE VOZ...</div>
+</div>
 
-        <div id="input-area">
-            <input type="text" id="cmd" placeholder="Diga: 'Abra o editor.html' ou 'Ligar para...'">
-            <button class="btn-core" onclick="processar()">EXECUTAR</button>
-        </div>
-    </div>
+<div id="controls">
+    <button class="btn-supreme" onclick="toggleVoice()" id="btn-voice">🎤 ATIVAR VOZ</button>
+    <button class="btn-supreme" onclick="document.getElementById('file-input').click()">📂 SINCRONIZAR</button>
+</div>
 
-    <input type="file" id="file-engine" webkitdirectory directory multiple style="display:none">
+<div style="padding: 0 15px;">
+    <input type="text" id="manual-search" style="width:100%; padding:15px; background:#111; border:1px solid #333; color:#fff; border-radius:10px;" placeholder="OU DIGITE O COMANDO...">
+</div>
 
-    <script>
-        const display = document.getElementById('display');
-        const cmdInput = document.getElementById('cmd');
-        const fileEngine = document.getElementById('file-engine');
-        let database = [];
+<input type="file" id="file-input" webkitdirectory directory multiple style="display:none">
 
-        // RELÓGIO INDUSTRIAL
-        setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
+<script>
+    const consoleDiv = document.getElementById('console');
+    const micIcon = document.getElementById('voice-pulse');
+    const micText = document.getElementById('mic-text');
+    let BANCO_DADOS = [];
+    let recognition;
+    let isListening = false;
 
-        function log(msg, color = var(--neon)) {
-            const div = document.createElement('div');
-            div.className = 'line';
-            div.style.color = color;
-            div.innerHTML = `> ${msg}`;
-            display.appendChild(div);
-            display.scrollTop = display.scrollHeight;
-        }
+    // CONFIGURAÇÃO DO OUVIDO DA HELENA
+    if ('webkitSpeechRecognition' in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = 'pt-BR';
 
-        function mapear() {
-            log("SOLICITANDO ACESSO AO ARMAZENAMENTO...", "yellow");
-            fileEngine.click();
-        }
-
-        fileEngine.onchange = (e) => {
-            database = Array.from(e.target.files);
-            log(`VARREDURA COMPLETA: ${database.length} ARQUIVOS INDEXADOS.`, "#00ff00");
-            log("INTELIGÊNCIA PRONTA PARA ABRIR QUALQUER ARQUIVO.");
+        recognition.onstart = () => {
+            isListening = true;
+            micIcon.classList.add('listening');
+            micText.innerText = "OUVINDO";
+            log("HELENA ESTÁ OUVINDO...", "var(--neon)");
         };
 
-        function comandoRapido(txt) {
-            cmdInput.value = txt;
-            processar();
+        recognition.onresult = (event) => {
+            const comando = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+            processarComando(comando);
+        };
+
+        recognition.onend = () => {
+            if(isListening) recognition.start(); // Auto-restart para manter sempre ouvindo
+        };
+    }
+
+    function log(msg, color = "#fff") {
+        const div = document.createElement('div');
+        div.className = 'res';
+        div.style.color = color;
+        div.innerHTML = `> ${msg}`;
+        consoleDiv.appendChild(div);
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
+
+    function toggleVoice() {
+        if(!isListening) {
+            recognition.start();
+            document.getElementById('btn-voice').classList.add('btn-active');
+        } else {
+            recognition.stop();
+            isListening = false;
+            micIcon.classList.remove('listening');
+            micText.innerText = "OFF";
+            document.getElementById('btn-voice').classList.remove('btn-active');
+            log("VOZ DESATIVADA.", "red");
         }
+    }
 
-        function processar() {
-            const raw = cmdInput.value.trim();
-            const cmd = raw.toLowerCase();
-            cmdInput.value = '';
+    function processarComando(cmd) {
+        log(`COMANDO RECEBIDO: <span class="cmd">"${cmd}"</span>`);
 
-            if(!cmd) return;
-            log(`PROCESSANDO: "${raw}"`, "white");
-
-            // 1. LÓGICA PARA ABRIR APPS DO SISTEMA
-            if(cmd.includes("whatsapp")) {
-                log("DISPARANDO PROTOCOLO WHATSAPP...");
-                window.location.href = "whatsapp://send";
-                return;
-            }
-            if(cmd.includes("youtube")) {
-                log("DISPARANDO PROTOCOLO YOUTUBE...");
-                window.location.href = "intent://www.youtube.com#Intent;package=com.google.android.youtube;scheme=https;end";
-                return;
-            }
-            if(cmd.includes("maps") || cmd.includes("mapa")) {
-                log("DISPARANDO PROTOCOLO GOOGLE MAPS...");
-                window.location.href = "https://www.google.com/maps";
-                return;
-            }
-
-            // 2. LÓGICA PARA ABRIR ARQUIVOS DO CELULAR (MAPEADOS)
-            if(cmd.includes("abra") || cmd.includes("abrir") || cmd.includes("execute")) {
-                const alvo = cmd.replace(/abra|abrir|execute|o|arquivo/g, "").trim();
-                const arquivo = database.find(f => f.name.toLowerCase().includes(alvo));
-
-                if(arquivo) {
-                    log(`ARQUIVO ENCONTRADO: ${arquivo.name}`, "#00f3ff");
-                    abrirArquivo(arquivo);
-                } else {
-                    log(`ERRO: O ARQUIVO "${alvo}" NÃO FOI LOCALIZADO. REALIZE O MAPEAMENTO.`, "red");
-                }
-            }
+        if(cmd.includes("whatsapp")) {
+            log("ABRINDO WHATSAPP...", "var(--gold)");
+            window.location.href = "intent://#Intent;scheme=whatsapp;package=com.whatsapp;end";
+        } 
+        else if(cmd.includes("sincronizar")) {
+            log("INICIANDO SINCRONIZAÇÃO DE DISCO...", "var(--gold)");
+            document.getElementById('file-input').click();
         }
-
-        function abrirArquivo(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const content = e.target.result;
-                if(file.name.endsWith('.html')) {
-                    const win = window.open();
-                    win.document.write(content);
-                } else {
-                    const url = URL.createObjectURL(file);
-                    window.open(url, '_blank');
-                }
-            };
-            
-            if(file.name.endsWith('.html') || file.name.endsWith('.txt')) {
-                reader.readAsText(file);
-            } else {
-                const url = URL.createObjectURL(file);
-                window.open(url, '_blank');
-            }
+        else if(cmd.includes("abrir")) {
+            const alvo = cmd.replace("abrir", "").trim();
+            abrirArquivoPorVoz(alvo);
         }
+        else if(cmd.includes("limpar")) {
+            consoleDiv.innerHTML = "";
+            log("CONSOLE LIMPO.");
+        }
+    }
 
-        function limpar() { display.innerHTML = ''; log("TERMINAL REINICIADO."); }
+    // BUSCA E EXECUÇÃO NO INTERIOR DO APARELHO
+    document.getElementById('file-input').onchange = function(e) {
+        const files = Array.from(e.target.files);
+        BANCO_DADOS = files.map(f => ({ name: f.name.toLowerCase(), handle: f }));
+        log(`SINCRONIZADO: ${files.length} ARQUIVOS MAPEADOS NO INTERIOR.`, "var(--gold)");
+    };
 
-        // ENTER
-        cmdInput.addEventListener("keyup", (e) => { if(e.key === "Enter") processar(); });
-    </script>
+    function abrirArquivoPorVoz(nome) {
+        log(`BUSCANDO POR: ${nome}...`);
+        const encontrado = BANCO_DADOS.find(f => f.name.includes(nome));
+        if(encontrado) {
+            log(`SUCESSO! ABRINDO ${encontrado.handle.name}`, "#0f0");
+            const url = URL.createObjectURL(encontrado.handle);
+            window.open(url, '_blank');
+        } else {
+            log(`ERRO: ARQUIVO "${nome}" NÃO ENCONTRADO NO DISCO.`, "red");
+        }
+    }
+</script>
+
 </body>
 </html>
